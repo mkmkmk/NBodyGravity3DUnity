@@ -13,9 +13,10 @@ public class NBodySystemLogic : MonoBehaviour
     private GameObject[] gameSystem;
 
     // private float ScaleDim = 1f;
-    private const float Game2LogicTimeMul = 10f;
+    private const float Game2LogicTimeMul = 30f;
 
     private const float TimeStep = 0.05f;
+
 
     private float time;
 
@@ -34,6 +35,8 @@ public class NBodySystemLogic : MonoBehaviour
                         Mass = 1.5f,
                         Position = new Vector3(0, 0, 0),
                         Velocity = new Vector3(0, -0.01f),
+                        Color =  new Color(223, 50, 2, 1 ) / 255f,
+                        Radius = 40 / 10f,
                     },
 
                     new Body
@@ -41,6 +44,8 @@ public class NBodySystemLogic : MonoBehaviour
                         Mass = 5e-2f,
                         Position = new Vector3(-21, 0),
                         Velocity = new Vector3(0, .3f),
+                        Color = new Color(36, 171, 255, 1 ) / 255f,
+                        Radius = 8 / 10f,
                     },
 
                     new Body
@@ -48,35 +53,77 @@ public class NBodySystemLogic : MonoBehaviour
                         Mass = 2e-9f,
                         Position= new Vector3(-21, -3),
                         Velocity= new Vector3(0.10f, 0.30f),
+                        Color = new Color(200, 200, 200, 1 ) / 255f,
+                        Radius = 4 / 10f,
 
                     },
-                    new Body{
+
+                    new Body
+                    {
                         Mass = 7e-9f,
                         Position= new Vector3(10, 0),
                         Velocity= new Vector3(0, -0.4f),
+                        Color = new Color(0, 170, 53, 1 ) / 255f,
+                        Radius = 7 / 10f,
 
                     },
 
-                    new Body{
+                    new Body
+                    {
                         Mass = 7e-9f,
                         Position= new Vector3(-12, 0),
                         Velocity= new Vector3(0, -0.4f),
-
+                        Color = new Color(255, 50, 10, 1 ) / 255f,
+                        Radius = 6 / 10f,
                     },
+
             };
 
-        gameSystem = startupSystem.Select(point =>
+        gameSystem = startupSystem.Select((body, index) =>
         {
-            var go = Instantiate(BodyPrefab, Logic2Game(point.Position), Quaternion.identity, transform);
-            go.GetComponent<BodyObject>().Body = point;
+            var go = Instantiate(BodyPrefab, Logic2Game(body.Position), Quaternion.identity, transform);
+            go.transform.localScale = Vector3.one * body.Radius;
+
+            var sphereRenderer = go.GetComponentInChildren<MeshRenderer>();
+            if (sphereRenderer != null)
+            {
+                sphereRenderer.material =
+                    new Material(sphereRenderer.material)
+                    {
+                        color = body.Color
+                    };
+            }
+
+            if (index == 0)
+            {
+                var lightObj = new GameObject("Light");
+                lightObj.transform.parent = go.transform;
+                lightObj.transform.localPosition = Vector3.zero;
+
+                var light = lightObj.AddComponent<Light>();
+                light.type = LightType.Point;
+                light.intensity = 5000;
+                light.range = 100f;
+                light.color = new Color(1f, 0.95f, 0.8f);
+
+                if (sphereRenderer != null)
+                {
+                    sphereRenderer.material.EnableKeyword("_EMISSION");
+                    sphereRenderer.material.SetColor("_EmissionColor", Color.yellow * 2f);
+                }
+            }
+
+            go.GetComponent<BodyObject>().Body = body;
             return go;
+
         }).ToArray();
 
         time = Time.time;
     }
 
-    private Vector3 Logic2Game(Vector3 inp) 
-        => new (inp.x, inp.z, inp.y);
+
+    private Vector3 Logic2Game(Vector3 inp)
+        => new Vector3(inp.x, inp.z, inp.y) * 2f;
 
 
     // Update is called once per frame
@@ -99,7 +146,6 @@ public class NBodySystemLogic : MonoBehaviour
             body.Velocity = next.Velocity;
             item.transform.position = Logic2Game(body.Position);
         }
-
     }
 
 
@@ -141,7 +187,7 @@ public class NBodySystemLogic : MonoBehaviour
     }
 
 
-    private static Vector3[] Mul(float d, IEnumerable<Vector3> inp) 
+    private static Vector3[] Mul(float d, IEnumerable<Vector3> inp)
         => inp.Select(el => el * d).ToArray();
 
 
