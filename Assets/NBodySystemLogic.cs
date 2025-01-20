@@ -12,7 +12,7 @@ public class NBodySystemLogic : MonoBehaviour
     private GameObject[] gameSystem;
 
     // private float ScaleDim = 1f;
-    private const float Game2LogicTimeMul = 30f;
+    private const float Game2LogicTimeMul = 10f;
 
     private const float TimeStep = 0.05f;
 
@@ -34,7 +34,7 @@ public class NBodySystemLogic : MonoBehaviour
                         Mass = 1.5f,
                         Position = new Vector3(0, 0, 0),
                         Velocity = new Vector3(0, -0.01f),
-                        Color =  new Color(223, 50, 2, 1 ) / 255f,
+                        Color =  new Color(223, 50, 2, 1 ) / 255f * 100,
                         Radius = 40 / 10f,
                     },
 
@@ -105,11 +105,11 @@ public class NBodySystemLogic : MonoBehaviour
                 light.range = 100f;
                 light.color = new Color(1f, 0.95f, 0.8f);
 
-                if (sphereRenderer != null)
-                {
-                    sphereRenderer.material.EnableKeyword("_EMISSION");
-                    sphereRenderer.material.SetColor("_EmissionColor", Color.yellow * 2f);
-                }
+                // if (sphereRenderer != null)
+                // {
+                //     sphereRenderer.material.EnableKeyword("_EMISSION");
+                //     sphereRenderer.material.SetColor("_EmissionColor", Color.yellow * 2f);
+                // }
             }
 
             go.GetComponent<BodyObject>().Body = body;
